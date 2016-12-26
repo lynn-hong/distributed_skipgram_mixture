@@ -1,9 +1,9 @@
 The parameters for Skip-Gram Mixture Multi-Sense model:
 
 /************************For IO************************/
+-wdir: '결과 파일들이' 나오는 곳. 실행시킨 위치와는 상관이 없으므로 완전히 다른 곳에서 결과 파일을 보고 싶으면 다른 곳으로 지정해도 됨
 -train_file: STRING. 학습용 말뭉치(corpus) 파일, e.g. enwiki2014.
--vocab_file: STRING. corpus에 포함된 모든 단어와 그 출현빈도(word count)를 기록한 파일. 따로 corpus에서 출현빈도 정보를 추출해 만들어야 함. 구분자 '\t'(tab) 유효
-(다른 것들은 시험해보지 않음)
+-vocab_file: STRING. corpus에 포함된 모든 단어와 그 출현빈도(word count)를 기록한 파일. 따로 corpus에서 출현빈도 정보를 추출해 만들어야 함. 구분자 '\t'(tab) 유효(다른 것들은 시험해보지 않음)
 -binary: INTEGER. 학습된 embedding 벡터들의 정보를 모두 바이너리 포맷으로 출력할 지(결과 파일로) 여부. 2는 binary와 text 포맷 모두 출력한다는 의미
 -read_sense: STRING. 미리 정의된 다의어 목록으로, 각 라인이 각 단어가 됨. 단어들 출현빈도를 센 후에 빈도 순으로 잘라도 됨
 -binary_embedding_file: STRING. 학습된 multi sense embedding 벡터 정보를 바이너리 포맷으로 저장하는 결과 파일
@@ -22,14 +22,14 @@ The parameters for Skip-Gram Mixture Multi-Sense model:
 -min_count: INTEGER. corpus 전체에서 출현 빈도가 적은 단어들을 dictionary에서 제거함. 0으로 세팅하면 빈도가 적어도 모두 학습, 5로 설정하면 출현 빈도가 5 미만인 단어들이 삭제됨
 -epoch: INTEGER. 전체 학습 과정이 반복되는 횟수. 실험해 본 결과, 최소 10은 되어야 결과가 정상적으로 나옴
 -sense_num_multi: INTEGER. 각 다의어들이 몇 개의 의미를 가질 것인지 지정. 선행연구에서는 9로 설정함
--momentum: FLOAT. 최초의 momentum으로, 반드시 (0, 1) 사이에 있어야 함.  Used to update the sense_priors by sense_priors_t = momentum * sense_priors_[t-1] + (1 - momentum)
- * \phi. 학습이 진행됨에 따라 1까지 선형적으로 증가함
+-momentum: FLOAT. 최초의 momentum으로, 반드시 (0, 1) 사이에 있어야 함.  sense_priors_t = momentum * sense_priors_[t-1] + (1 - momentum) * \phi 공식에 의해 sense_priors를 업데이트하는 데 사용됨. 학습이 진행됨에 따라 1까지 선형적으로 증가함
 -EM_iteration: INTEGER. EM 알고리즘의 반복 횟수. 1로만 세팅해도 충분히 결과가 좋고 속도가 빠름
 -store_multinomial: BINARY. sense prior를 저장할 방법 선택. 1은 multinomial parameters로 저장함을 의미 (0과 1 사이이며 이들의 합이 1이 됨), 0은 multinomial parameters의 로그값으로 저장함을 의미
 -top_n: INTEGER. 다의어 목록에 있는 단어들 중 출현 빈도수 상위 n개의 단어를 다의어로 자동 선택
 -top_ratio: FLOAT. 반드시 (0, 1) 사이에 있어야 함. 다의어 목록에 있는 단어들 중 출현 빈도수 상위 n% 단어들을 다의어로 자동 선택
 
 /************************For Distributed Setting related with DMTK************************/
+-machinefile: "새로 추가함". MPI 분산 처리를 위한 서버 주소 등의 정보를 담고 있는 파일
 -lock_option: INTEGER. The lock option. DMTK 공식 문서 참조.
 -num_lock: INTEGER. The number of locks. DMTK 공식 문서 참조.
 -max_delay: INTEGER. The max delay. DMTK 공식 문서 참조. 0으로 세팅하는 것을 강력하게 권장함.
