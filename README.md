@@ -1,38 +1,79 @@
-Distributed Multisense Word Embedding
+(2016-12-26 현재 작성 중입니다)
+--
+
+
+Distributed Multisense Word Embedding (Korean version documentation)
 ==========
 
-The Distributed Multisense Word Embedding(DMWE) tool is a parallelization of the Skip-Gram Mixture [1] algorithm on top of the DMTK parameter server. It provides an efficient "scaling to industry size" solution for multi sense word embedding.
+Distributed Multisense Word Embedding(DMWE) tool은 Skip-Gram Mixture [1] 알고리즘을 분산 처리할 수 있도록 한 도구입니다. Microsoft의 Distributed Machine Learning Toolkit(DMTK) 구조를 따르고 있습니다.
 
-For more details, please view our website [http://www.dmtk.io](http://www.dmtk.io)
+Skip-Gram Mixture는 딥 러닝을 텍스트에 적용한 Word2Vec [2] 학습 방법 중 Skip-Gram을 확장한 것으로 다의어 문맥 학습이 되지 않는다는 Word2Vec의 치명적인 약점을 보완하였습니다.
 
-Download 
+DMTK에 대한 더 자세한 내용은 [http://www.dmtk.io](http://www.dmtk.io) 웹사이트를 참조하시기 바랍니다.
+
+
+
+본 문서는 https://github.com/Microsoft/distributed_skipgram_mixture.git 의 코드에 대한 한국어 버전 주석입니다.
+
+원본 Readme의 설명이 부족하고 실제 사용이 복잡하므로 이에 대한 추가 설명이 필요하다는 생각이 들었습니다. 본인이 학위논문 연구를 위해 본 코드를 사용하는 과정에서 발생했던 오류에 대한 해결책을 공유하고자 합니다.
+
+**이하의 설명은 Linux Ubuntu 14.04를 기준으로 작성되었습니다. 원본 Readme에는 Windows용 설치에 대한 설명도 나와 있으며, [1] 의 실험도 Windows 환경에서 수행된 것으로 
+보입니다. 본 문서는 Windows 환경에 대해선 다루지 않지만 많은 참고가 되실 거라고 생각합니다.**
+
+Skip-Gram Mixture 알고리즘을 한국어에 적용한 연구는 [3] 학위논문을 참조 바랍니다.
+
+
+현 상태 및 구조 (Status and Structure)
 ----------
-$ git clone https://github.com/Microsoft/distributed_skipgram_mixture 
+DMWE tool은 실질적으로 "deprecated(더 이상 버전업이 되지 않고 버려짐)" 상태입니다. 깃허브에 이슈를 올려도 원작자가 답변도 안 달아줍니다…
 
-Build
+이 tool은 Microsoft에서 개발한 [DMTK parameter server (Multiverso)](https://github.com/Microsoft/Multiverso.git)라는 분산처리용 프레임워크를 기반으로 하고 있습니다(Multiverso는 다시 MPI 기반입니다).
+
+그런데 이 DMWE가 참조하고 있는 Multiverso 버전이 `Multiverso-initial`이라는 branch인데 이것의 Readme를 보시면 1년 전에 이미 "deprecated" 되었다고 적혀 있습니다.
+
+그래서 DMWE를 사용하려면 최신 버전이 아닌 1년 전의 `Multiverso-initial`를 사용해야만 하고, 이 버전은 부분부분 기능이 없거나 에러가 존재합니다. 
+
+개인적으로 최신 버전 Multiverso를 설치해 DMWE의 코드를 수정해서 써 보려고 했으나 한두 군데를 바꿔서 쓸 수 있는 것이 아니었습니다. 거의 구조를 통째로 바꿔야 하는 상황이라 최신 버전 적용은 포기하는 것이 좋을 듯합니다.
+
+DMWE는 실행 쪽 코드는 python, 알고리즘 쪽 코드는 C++로 작성되어 있습니다. 이는 실행의 속도를 높이기 위해서라고 논문에서 밝히고 있습니다.
+
+
+다운로드 (Download) 
+----------
+DMWE 코드를 다운로드합니다. 원본 다운로드 경로는 아래와 같습니다.
+
+> `$ git clone https://github.com/Microsoft/distributed_skipgram_mixture`
+
+
+그러나 아래에서 언급하겠지만 이 원본 코드로는 제대로 실행이 안됩니다. 제가 실행 파일과 멀티쓰레딩이 가능한 상태로 살짝 수정한 버전을 다운로드 하시려면 아래 경로로 다운로드해주세요. 
+
+> `$ git clone https://github.com/lynn-hong/distributed_skipgram_mixture`
+
+아래 ‘실행’ 섹션에서 반드시 수정된 부분이 어디인지 확인하시고 본인에게 맞는 것을 다운로드 하시기 바랍니다.
+
+
+이를 실행시키기 위한 프레임워크인 Multiverso를 DMWE 디렉토리 안으로 다운로드합니다. 앞서 말씀드린 대로 master branch가 아닙니다. 위치는 `distributed_skipgram_mixture/multiverse`가 되어야 합니다.
+
+> `$ git clone -b multiverso-initial https://github.com/Microsoft/multiverso.git`
+
+빌드 (Build)
 ----------
 
-**Prerequisite**
 
-DMWE is built on top of the DMTK parameter sever, therefore please download and build DMTK first (https://github.com/Microsoft/multiverso).
-
-**For Windows**
-
-Open windows\distributed_skipgram_mixture\distributed_skipgram_mixture.sln using Visual Studio 2013. Add the necessary include path (for example, the path for DMTK multiverso) and lib path. Then build the solution.
-
-**For Ubuntu (Tested on Ubuntu 12.04)**
-
-Download and build by running ```$ sh build.sh```. Modify the include and lib path in Makefile. Then run ```$ make all -j4```.
-
-Run
+실행 (Run)
 ----------
-For parameter settings, see ```scripts/parameters_settings.txt```. For running it, see the example script ```scripts/run.py```.
+
+
 
 Reference
 ----------
 [1] Tian, F., Dai, H., Bian, J., Gao, B., Zhang, R., Chen, E., & Liu, T. Y. (2014). [A probabilistic model for learning multi-prototype word embeddings](http://www.aclweb.org/anthology/C14-1016). In Proceedings of COLING (pp. 151-160).
 
+[2] Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in neural information processing systems (pp. 3111-3119).
+
+[3] 홍수린. (2017). 딥 러닝과 한국어 사전을 이용한 단어 의미 중의성 해소. 석사학위논문, 연세대학교, 서울.
+
+
 Microsoft Open Source Code of Conduct
 ------------
-
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
